@@ -13,32 +13,36 @@ import twitter4j.TwitterStreamFactory;
 public class Collector {
 	
 	public static String filter_args = "hearthstone"; // Separate terms by comma
-	public static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+	public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+																	//2016-12-07T16:41:26Z
 																	//Wed Aug 27 13:08:45 +0000 2008"
+																	//EEE MMM dd HH:mm:ss Z yyyy
 
 	public static void main(String args[]){
 		try {
-			filter();
+			startStreamFilter();
 		} catch (TwitterException | IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void filter() throws TwitterException, IOException{
+	public static void startStreamFilter() throws TwitterException, IOException{
 	    StatusListener listener = new StatusListener(){
 	        public void onStatus(Status status) {
 	        	long id = status.getId();
 	        	Date created_at = status.getCreatedAt();
 	        	long user_id = status.getUser().getId();
 	        	String user_screenname = status.getUser().getScreenName();
+	        	String text = status.getText();
+	        	
 	        	
 	            //System.out.println(status.getId() + "|" + status.getUser().getName() + " : " + status.getText());
+	        	String tweet = String.format("%s %s %s\n\n", dateFormat.format(created_at), user_screenname, text);
+	        	System.out.print(tweet);
 	        }
 	        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
 	        public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
-	        public void onException(Exception ex) {
-	            ex.printStackTrace();
-	        }
+	        public void onException(Exception ex) { ex.printStackTrace(); }
 			public void onScrubGeo(long arg0, long arg1) {}
 			public void onStallWarning(StallWarning arg0) {}
 	    };
