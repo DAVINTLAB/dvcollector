@@ -35,6 +35,7 @@ public class Collector {
 	        	String user_screenname = status.getUser().getScreenName();
 	        	String text = status.getText();
 	        	
+	        	DatabaseManager.insertStatus(status);
 	        	
 	            //System.out.println(status.getId() + "|" + status.getUser().getName() + " : " + status.getText());
 	        	String tweet = String.format("%s %s %s\n\n", dateFormat.format(created_at), user_screenname, text);
