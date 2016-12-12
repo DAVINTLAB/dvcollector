@@ -20,6 +20,7 @@ public class Collector {
 
 	public static void main(String args[]){
 		try {
+			DatabaseManager.connectToDatabase();
 			startStreamFilter();
 		} catch (TwitterException | IOException e) {
 			e.printStackTrace();
@@ -39,7 +40,7 @@ public class Collector {
 	        	
 	            //System.out.println(status.getId() + "|" + status.getUser().getName() + " : " + status.getText());
 	        	String tweet = String.format("%s %s %s\n\n", dateFormat.format(created_at), user_screenname, text);
-	        	System.out.print(tweet);
+	        	//System.out.print(tweet);
 	        }
 	        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
 	        public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
@@ -49,7 +50,6 @@ public class Collector {
 	    };
 	    TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
 	    twitterStream.addListener(listener);
-	    twitterStream.filter(filter_args);
-	    
+	    twitterStream.filter(filter_args);	    
 	}
 }

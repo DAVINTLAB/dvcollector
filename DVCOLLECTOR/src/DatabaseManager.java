@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import twitter4j.Status;
@@ -7,10 +8,24 @@ public class DatabaseManager {
 	
 	public static String DB_NAME = "dvcollector.db";
 	
+	public static SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	
 	public static Connection con;
 	
-	public static void main( String args[] ) {
-		createDatabase();		
+	public static void main( String args[] ) throws SQLException {
+		createDatabase();	
+		connectToDatabase();
+		Statement s = con.createStatement();
+		s.execute("SELECT * FROM TWEETS");
+		ResultSet resultSet = s.getResultSet();
+		
+		ResultSetMetaData rsmd = resultSet.getMetaData();
+		int columnsNumber = rsmd.getColumnCount();
+		while (resultSet.next()) {
+		    System.out.println(resultSet.getString(3));
+		    System.out.println("");
+		}
+		s.close();
 	}
 	
 	public static boolean insertStatus(Status status) {
@@ -21,10 +36,20 @@ public class DatabaseManager {
         	String user_screenname = status.getUser().getScreenName();
         	String text = status.getText();
         	
-        	Statement statement = con.createStatement();			
-			String sql = String.format("INSERT INTO TWEETS VALUES( %d, %s, %d, %s, %s )", 
-					user_id, user_screenname, id, text, created_at);
-			statement.executeUpdate(sql);			
+        	System.out.println(id);
+        	
+        	String sql = "INSERT INTO TWEETS (user_id, user_screenname, id, text, created_at) " + 
+                		 "VALUES( ?, ?, ?, ?, ? )";
+        	
+        	PreparedStatement statement = con.prepareStatement(sql);
+        	statement.setLong(1, user_id);
+        	statement.setString(2, user_screenname);
+        	statement.setLong(3, id);
+        	statement.setString(4, text);
+        	statement.setString(5, isoFormat.format(created_at));
+        	System.out.println(statement.toString());
+			statement.executeUpdate();			
+
 			
 			statement.close();
 			System.out.println("Tweet saved succesfully.");			
@@ -45,11 +70,11 @@ public class DatabaseManager {
 			Statement statement = con.createStatement();
 			String sql = 
 					"CREATE TABLE TWEETS( " +
-					" USER_ID				INTEGER				NOT NULL," +
-					" USER_SCREENNAME		TEXT				NOT NULL, " + 
-					" ID					INTEGER PRIMARY KEY	NOT NULL," +
-					" TEXT					TEXT				NOT NULL, " + 
-					" CREATED_AT			TEXT				NOT NULL " +
+					" user_id				INTEGER				NOT NULL," +
+					" user_screenname		TEXT				NOT NULL, " + 
+					" id					INTEGER PRIMARY KEY	NOT NULL," +
+					" text					TEXT				NOT NULL, " + 
+					" created_at			TEXT				NOT NULL " +
 					" )"; 
 			statement.executeUpdate(sql);			
 			statement.close();
