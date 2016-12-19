@@ -15,7 +15,6 @@ public class MainApp extends Application {
 
     private Stage primaryStage;
     private BorderPane rootLayout;
-    private Collector collector;
 
     @Override
     public void start(Stage primaryStage) {
