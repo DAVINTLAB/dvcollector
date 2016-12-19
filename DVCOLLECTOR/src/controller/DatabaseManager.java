@@ -49,10 +49,8 @@ public class DatabaseManager {
         	statement.setLong(3, id);
         	statement.setString(4, text);
         	statement.setString(5, isoFormat.format(created_at));
-        	System.out.println(statement.toString());
 			statement.executeUpdate();			
 
-			
 			statement.close();
 			System.out.println("Tweet saved succesfully.");			
 			return true;
