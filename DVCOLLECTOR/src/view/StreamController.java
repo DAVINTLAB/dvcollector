@@ -32,6 +32,8 @@ public class StreamController {
     private TextField userTextField;
     @FXML
     private TextField dateTextField;
+    @FXML
+    private TextField counterTextField;
     
     @FXML
     private TextField consumerKey;
@@ -43,6 +45,9 @@ public class StreamController {
     private TextField accessTokenSecret;
     
     @FXML
+    private TextField filterTextField;
+    
+    @FXML
     private Label status;
     @FXML
     private ImageView animation;
@@ -52,8 +57,9 @@ public class StreamController {
     private Image logo;
     private Image loadAnimation;
     private Image streamAnimation;
+    private Image error;
     private Collector collector;
-    private boolean buttonToggle;
+    private volatile int counter;
 
     /**
      * The constructor.
@@ -64,7 +70,7 @@ public class StreamController {
     	this.logo = new Image("logo.png");
     	this.loadAnimation = new Image("loading.gif");
     	this.streamAnimation = new Image("streaming.gif");
-    	this.buttonToggle = true;
+    	this.error = new Image("error.png");
     }
 
     /**
@@ -73,7 +79,7 @@ public class StreamController {
      */
     @FXML
     private void initialize() {    	
-    	//setIdleStatus();
+    	setIdleStatus();
     }
 
     /**
@@ -93,45 +99,39 @@ public class StreamController {
 				userTextField.setText(status.getUser().getScreenName());
 				dateTextField.setText(IsoDateFormatter.format(status.getCreatedAt()));
 				tweetTextField.setText(status.getText());
+				counterTextField.setText(String.format("%d", ++counter));
 			}    		   
     	});
     }
     
     public void startStream(){
     	//createCollector();
-    	collector = new Collector(this);
+    	this.collector = new Collector(this, consumerKey.getText(), consumerSecret.getText(), accessToken.getText(), accessTokenSecret.getText());
+    	if(filterTextField.getText() != null){
+    		this.collector.setFilter(filterTextField.getText());
+    	}
     	setLoadingStatus();
-    	toggleStreamButtons();
+    	
+    	startStreamButton.setDisable(true);
+    	stopStreamButton.setDisable(false);
+    	filterTextField.setDisable(true);    	
+    	
     	try {
 			collector.startStreamFilter();
 		} catch (TwitterException | IOException e) {
-			// TODO Auto-generated catch block
+			setErrorStatus();
 			e.printStackTrace();
 		}
     }
     
-    private void toggleStreamButtons(){
-    	startStreamButton.setDisable(buttonToggle);
-    	stopStreamButton.setDisable(!buttonToggle);
-    	buttonToggle = !buttonToggle;
-    }
-    
-    private void createCollector() {
-    	String consumerKey = this.consumerKey.getText();
-    	String consumerSecret = this.consumerSecret.getText();
-    	String accessToken = this.accessToken.getText();
-    	String accessTokenSecret = this.accessTokenSecret.getText();
-    	System.out.println(consumerKey);
-    	System.out.println(consumerSecret);
-    	System.out.println(accessToken);
-    	System.out.println(accessTokenSecret);
-		this.collector = new Collector(this, consumerKey, consumerSecret, accessToken, accessTokenSecret);
-	}
-
 	public void stopStream(){
-    	collector.stopStreamFilter();
-    	toggleStreamButtons();
-    	setIdleStatus();
+		collector.stopStreamFilter();
+		
+		startStreamButton.setDisable(false);
+		stopStreamButton.setDisable(true);
+		filterTextField.setDisable(false);
+		
+		setIdleStatus();
     }
     
     public void setLoadingStatus(){ 
@@ -140,17 +140,18 @@ public class StreamController {
     	animation.setImage(loadAnimation); 
     }
     public void setStreamingStatus(){
-    	Platform.runLater(new Runnable(){
-			public void run() { 
-				status.setText("Receiving stream");
-				status.setTextFill(Paint.valueOf("#006600")); // Green
-				animation.setImage(streamAnimation);
-			}    		   
-    	});
+    	status.setText("Receiving stream");
+    	status.setTextFill(Paint.valueOf("#006600")); // Green
+    	animation.setImage(streamAnimation);
     }
     public void setIdleStatus(){
     	status.setText("Idle");
     	status.setTextFill(Paint.valueOf("#333333")); // TODO Get the exact default color (this one is pretty close)
     	animation.setImage(logo);
+    }
+    public void setErrorStatus(){
+    	status.setText("Error");
+    	status.setTextFill(Paint.valueOf("#990000"));
+    	animation.setImage(error);
     }
 }

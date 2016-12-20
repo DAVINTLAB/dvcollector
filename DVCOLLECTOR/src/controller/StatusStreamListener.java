@@ -3,6 +3,7 @@ package controller;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javafx.application.Platform;
 import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
@@ -30,9 +31,16 @@ public class StatusStreamListener implements StatusListener {
     	System.out.print(tweet);
     }
 	
+	public void onException(Exception ex) { 
+		Platform.runLater(new Runnable(){
+			public void run() { 
+				streamController.setErrorStatus(); 
+			}    		   
+    	});
+		ex.printStackTrace();
+	}
     public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
     public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
-    public void onException(Exception ex) { ex.printStackTrace(); }
 	public void onScrubGeo(long arg0, long arg1) {}
 	public void onStallWarning(StallWarning arg0) {}
 
