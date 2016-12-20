@@ -20,7 +20,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Main Window");
+        this.primaryStage.setTitle("DVCollector");
         this.primaryStage.getIcons().add(new Image("logo.png"));
         initRootLayout();
 
