@@ -107,7 +107,8 @@ public class StreamController {
     public void startStream(){
     	//createCollector();
     	this.collector = new Collector(this, consumerKey.getText(), consumerSecret.getText(), accessToken.getText(), accessTokenSecret.getText());
-    	if(filterTextField.getText() != null){
+    	System.out.println(":" + filterTextField.getText() + ":");
+    	if(!(filterTextField.getText() == null || filterTextField.getText().trim().isEmpty())){
     		this.collector.setFilter(filterTextField.getText());
     	}
     	setLoadingStatus();
