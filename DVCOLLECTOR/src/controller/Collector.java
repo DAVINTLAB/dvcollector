@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javafx.application.Platform;
 import twitter4j.ConnectionLifeCycleListener;
 import twitter4j.StallWarning;
 import twitter4j.Status;
@@ -19,7 +20,7 @@ import view.StreamController;
 public class Collector {
 	
 	private StreamController streamController;
-	private String filterArgs = "league of legends, hearthstone";
+	private String filter = "league of legends, hearthstone, killing floor 2";
 	private TwitterStream twitterStream;
 
 	public Collector(StreamController streamController) {
@@ -47,6 +48,9 @@ public class Collector {
 			e.printStackTrace();
 		}
 	}*/
+	public void setFilter(String filter){
+		this.filter = filter;
+	}
 	
 	public void startStreamFilter() throws TwitterException, IOException{
 		DatabaseManager.connectToDatabase();
@@ -54,14 +58,21 @@ public class Collector {
 	    this.twitterStream = new TwitterStreamFactory().getInstance();
 	    this.twitterStream.addListener(listener);
 	    this.twitterStream.addConnectionLifeCycleListener(new ConnectionLifeCycleListener() {			
-	    	public void onConnect() { streamController.setStreamingStatus(); }
+	    	public void onConnect() { 
+	    		Platform.runLater(new Runnable(){
+	    			public void run() { 
+	    				streamController.setStreamingStatus();
+	    			}    		   
+	        	});
+	    	}
 	    	public void onDisconnect() {}
 			public void onCleanUp() {}
 		});
 	    
-	    this.twitterStream.filter(filterArgs);	    
+	    this.twitterStream.filter(filter);	    
 	}
 	public void stopStreamFilter(){
 		this.twitterStream.shutdown();
+		System.out.println("Stream shutdown.");
 	}
 }
