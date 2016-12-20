@@ -22,18 +22,27 @@
                <children>
                   <VBox alignment="TOP_CENTER" layoutX="56.0" layoutY="67.0" prefHeight="598.0" prefWidth="235.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Button fx:id="startStreamButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#startStream" prefWidth="300.0" text="Start stream" />
-                        <Button fx:id="stopStreamButton" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#stopStream" prefWidth="300.0" text="Stop stream" />
+                        <Button fx:id="startStreamButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#startStream" prefWidth="300.0" text="Start streaming" />
+                        <Button fx:id="stopStreamButton" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#stopStream" prefWidth="300.0" text="Stop streaming" />
                         <VBox prefHeight="200.0" prefWidth="100.0">
                            <children>
                               <Label text="Consumer Key:" />
-                              <PasswordField fx:id="consumerKey" />
+                              <PasswordField fx:id="consumerKey" text="700ERkmDBiiBhhyAOQHYd5EmX" />
                               <Label text="Consumer Secret:" />
-                              <PasswordField fx:id="consumerSecret" />
+                              <PasswordField fx:id="consumerSecret" text="xmRQg4LO1jfAmfRUNJ9zhAVI7m1rUXEqIqGeVccCkfpyYfvUDa" />
                               <Label text="Access Token:" />
-                              <PasswordField fx:id="accessToken" />
+                              <PasswordField fx:id="accessToken" text="283326527-lz6XjlLegB64rkTTpa3toRw3B2ni9C2SxhewjJLn" />
                               <Label text="Access Token Secret:" />
-                              <PasswordField fx:id="accessTokenSecret" />
+                              <PasswordField fx:id="accessTokenSecret" text="J99BGabpitRrPooseVpmaX7FDZkYaU5V262kc6kYWjB3X" />
+                              <VBox>
+                                 <children>
+                                    <Label text="Filter:" />
+                                    <TextField fx:id="filterTextField" promptText="league of legends, hearthstone, killing...." />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets top="50.0" />
+                                 </VBox.margin>
+                              </VBox>
                            </children>
                         </VBox>
                      </children>
@@ -63,20 +72,26 @@
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <HBox prefHeight="100.0" spacing="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <HBox spacing="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                        <AnchorPane prefWidth="250.0">
                            <children>
-                              <VBox AnchorPane.topAnchor="0.0">
+                              <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <children>
                                     <Label text="User:" />
-                                    <TextField fx:id="userTextField" editable="false" />
+                                    <TextField fx:id="userTextField" editable="false" promptText="Screen name" />
                                  </children>
                               </VBox>
-                              <VBox AnchorPane.bottomAnchor="0.0">
+                              <VBox layoutY="42.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                                  <children>
                                     <Label text="Date:" />
-                                    <TextField fx:id="dateTextField" editable="false" />
+                                    <TextField fx:id="dateTextField" editable="false" promptText="YYYY-MM-DDThh:mm:ssZ" />
+                                 </children>
+                              </VBox>
+                              <VBox layoutY="84.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                                 <children>
+                                    <Label text="Counter:" />
+                                    <TextField fx:id="counterTextField" editable="false" promptText="0" />
                                  </children>
                               </VBox>
                            </children>
