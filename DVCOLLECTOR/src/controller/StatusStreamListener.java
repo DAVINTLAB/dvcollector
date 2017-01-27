@@ -10,6 +10,7 @@ import twitter4j.StatusDeletionNotice;
 import twitter4j.StatusListener;
 import util.IsoDateFormatter;
 import view.StreamController;
+import view.StreamController.ViewStatus;
 
 public class StatusStreamListener implements StatusListener {
 	
@@ -34,7 +35,7 @@ public class StatusStreamListener implements StatusListener {
 	public void onException(Exception ex) { 
 		Platform.runLater(new Runnable(){
 			public void run() { 
-				streamController.setErrorStatus(); 
+				streamController.setStatus(ViewStatus.ERROR); 
 			}    		   
     	});
 		ex.printStackTrace();

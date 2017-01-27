@@ -11,30 +11,28 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Paint;
+import twitter4j.MediaEntity;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 import util.IsoDateFormatter;
 
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
 
 import controller.*;
 
 public class StreamController {
 	
+	//Left pane
 	@FXML
 	private Button startStreamButton;
 	@FXML
 	private Button stopStreamButton;
-	
-	@FXML
-	private TextArea tweetTextField;
-    @FXML
-    private TextField userTextField;
-    @FXML
-    private TextField dateTextField;
-    @FXML
-    private TextField counterTextField;
-    
     @FXML
     private TextField consumerKey;
     @FXML
@@ -43,14 +41,25 @@ public class StreamController {
     private TextField accessToken;
     @FXML
     private TextField accessTokenSecret;
-    
     @FXML
-    private TextField filterTextField;
-    
+    private TextField filterTextField;   
+    @FXML
+    private TextField counterTextField;
     @FXML
     private Label status;
     @FXML
-    private ImageView animation;
+    private ImageView statusImage;
+    //Right pane
+    @FXML
+    private TextArea tweetTextField;
+    @FXML
+    private TextField userTextField;
+    @FXML
+    private TextField dateTextField;
+    @FXML
+    private TextField languageTextField;
+    @FXML
+    private ImageView tweetImage;
     
     // Reference to the main application.
     private MainApp mainApp;
@@ -60,6 +69,7 @@ public class StreamController {
     private Image error;
     private Collector collector;
     private volatile int counter;
+    private String imageURL;
 
     /**
      * The constructor.
@@ -68,9 +78,10 @@ public class StreamController {
     public StreamController() {
     	//this.collector = new Collector(this);
     	this.logo = new Image("logo.png");
-    	this.loadAnimation = new Image("loading.gif");
-    	this.streamAnimation = new Image("streaming.gif");
-    	this.error = new Image("error.png");
+    	this.loadAnimation = new Image("logo.png");
+    	this.streamAnimation = new Image("logo.png");
+    	this.error = new Image("logo.png");
+    	this.imageURL = "http://www.google.com";
     }
 
     /**
@@ -78,8 +89,8 @@ public class StreamController {
      * after the fxml file has been loaded.
      */
     @FXML
-    private void initialize() {    	
-    	setIdleStatus();
+    private void initialize() {
+    	setStatus(ViewStatus.IDLE);
     }
 
     /**
@@ -91,7 +102,7 @@ public class StreamController {
         this.mainApp = mainApp;
     }
     
-    public void updateStatus(Status status){
+    public void updateStatus(Status status) {
     	// Necessary to update the UI without crashing
     	// TODO Look into this
     	Platform.runLater(new Runnable(){
@@ -100,59 +111,96 @@ public class StreamController {
 				dateTextField.setText(IsoDateFormatter.format(status.getCreatedAt()));
 				tweetTextField.setText(status.getText());
 				counterTextField.setText(String.format("%d", ++counter));
-			}    		   
+				languageTextField.setText(status.getLang());
+				
+				MediaEntity[] mediaEntities = status.getMediaEntities();
+				if(mediaEntities != null && mediaEntities.length != 0){
+					System.out.println("IBAGEM");
+					System.out.println(mediaEntities[0].getMediaURL());
+					tweetImage.setImage(new Image(mediaEntities[0].getMediaURL()));
+				} else tweetImage.setImage(null);
+			}    		    
     	});
     }
     
-    public void startStream(){
+    public void startStream() {
     	//createCollector();
     	this.collector = new Collector(this, consumerKey.getText(), consumerSecret.getText(), accessToken.getText(), accessTokenSecret.getText());
     	System.out.println(":" + filterTextField.getText() + ":");
     	if(!(filterTextField.getText() == null || filterTextField.getText().trim().isEmpty())){
     		this.collector.setFilter(filterTextField.getText());
     	}
-    	setLoadingStatus();
+    	setStatus(ViewStatus.LOADING);
     	
-    	startStreamButton.setDisable(true);
-    	stopStreamButton.setDisable(false);
-    	filterTextField.setDisable(true);    	
+    	toggleStreamButtons(false);  	
     	
     	try {
 			collector.startStreamFilter();
 		} catch (TwitterException | IOException e) {
-			setErrorStatus();
+			setStatus(ViewStatus.ERROR);
 			e.printStackTrace();
 		}
     }
     
-	public void stopStream(){
+	public void stopStream() {
+		setStatus(ViewStatus.STOPPING);
+		
+		toggleStreamButtons(true);
+		
 		collector.stopStreamFilter();
 		
-		startStreamButton.setDisable(false);
-		stopStreamButton.setDisable(true);
-		filterTextField.setDisable(false);
-		
-		setIdleStatus();
-    }
+		//setIdleStatus();
+	}
+	
+	public void openImageURL() throws IOException, URISyntaxException{
+		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+		desktop.browse(new URI(imageURL));
+	}
     
-    public void setLoadingStatus(){ 
-    	status.setText("Connecting..."); 
-    	status.setTextFill(Paint.valueOf("#b3b300")); // Yellow - has to be a little dark or it gets pretty hard to read
-    	animation.setImage(loadAnimation); 
+    public static enum ViewStatus { IDLE, LOADING, STREAMING, STOPPING, ERROR }
+    
+    public void setStatus(ViewStatus viewStatus){
+    	String statusText;
+    	Paint statusTextColor;
+    	Image statusImage;
+    	
+    	switch(viewStatus){
+    	case IDLE:
+    		statusText = "Idle";
+    		statusTextColor = Paint.valueOf("#333333"); // TODO Get the exact default color (this one is pretty close)
+    		statusImage = this.logo;
+    		break;
+    	case LOADING:
+    		statusText = "Connecting...";
+    		statusTextColor = Paint.valueOf("#b3b300"); // Yellow - has to be a little dark or it gets pretty hard to read
+    		statusImage = this.loadAnimation;
+    		break;
+    	case STREAMING:
+    		statusText = "Receiving stream...";
+    		statusTextColor = Paint.valueOf("#006600"); // Green
+    		statusImage = this.streamAnimation;
+    		break;
+    	case STOPPING:
+    		statusText = "Stopping stream...";
+    		statusTextColor = Paint.valueOf("#990000"); // Red
+    		statusImage = this.error; // TODO Put an appropriate image here
+    		break;  
+    	default:
+    	case ERROR:
+    		statusText = "Error";
+    		statusTextColor = Paint.valueOf("#990000"); // Red
+    		statusImage = this.error;
+    	}
+    	
+    	this.status.setText(statusText);
+    	this.status.setTextFill(statusTextColor); // Green
+    	this.statusImage.setImage(statusImage);
     }
-    public void setStreamingStatus(){
-    	status.setText("Receiving stream");
-    	status.setTextFill(Paint.valueOf("#006600")); // Green
-    	animation.setImage(streamAnimation);
-    }
-    public void setIdleStatus(){
-    	status.setText("Idle");
-    	status.setTextFill(Paint.valueOf("#333333")); // TODO Get the exact default color (this one is pretty close)
-    	animation.setImage(logo);
-    }
-    public void setErrorStatus(){
-    	status.setText("Error");
-    	status.setTextFill(Paint.valueOf("#990000"));
-    	animation.setImage(error);
+        
+    public void toggleStreamButtons(boolean toggle){
+    	// Disables or enables the start/stop stream buttons and the filter text field accordingly
+    	startStreamButton.setDisable(toggle);
+    	stopStreamButton.setDisable(!toggle);
+    	filterTextField.setDisable(toggle);    
     }
 }

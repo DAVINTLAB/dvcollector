@@ -16,6 +16,7 @@ import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
 import view.StreamController;
+import view.StreamController.ViewStatus;
 
 public class Collector {
 	
@@ -61,7 +62,7 @@ public class Collector {
 	    	public void onConnect() { 
 	    		Platform.runLater(new Runnable(){
 	    			public void run() { 
-	    				streamController.setStreamingStatus();
+	    				streamController.setStatus(ViewStatus.STREAMING);
 	    			}    		   
 	        	});
 	    	}
@@ -69,10 +70,19 @@ public class Collector {
 			public void onCleanUp() {}
 		});
 	    
-	    this.twitterStream.filter(filter);	    
+	    //this.twitterStream.filter(filter);	    
+	    this.twitterStream.sample();	    
+
 	}
+	
 	public void stopStreamFilter(){
-		this.twitterStream.shutdown();
+		System.out.println("Heyo");
+		twitterStream.cleanUp();
+		streamController.setStatus(ViewStatus.IDLE);
 		System.out.println("Stream shutdown.");
+	}
+	
+	public String getFilter(){
+		return filter;
 	}
 }
