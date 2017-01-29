@@ -7,10 +7,10 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -22,25 +22,54 @@
                <children>
                   <VBox alignment="TOP_CENTER" layoutX="56.0" layoutY="67.0" prefHeight="598.0" prefWidth="235.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Button fx:id="startStreamButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#startStream" prefWidth="300.0" text="Start streaming" />
-                        <Button fx:id="stopStreamButton" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#stopStream" prefWidth="300.0" text="Stop streaming" />
+                        <VBox spacing="5.0">
+                           <children>
+                              <Button fx:id="startStreamButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#startStream" prefWidth="300.0" text="Start streaming" />
+                              <Button fx:id="stopStreamButton" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#stopStream" prefWidth="300.0" text="Stop streaming" />
+                           </children>
+                        </VBox>
                         <VBox prefHeight="200.0" prefWidth="100.0">
                            <children>
-                              <Label text="Consumer Key:" />
-                              <PasswordField fx:id="consumerKey" text="700ERkmDBiiBhhyAOQHYd5EmX" />
-                              <Label text="Consumer Secret:" />
-                              <PasswordField fx:id="consumerSecret" text="xmRQg4LO1jfAmfRUNJ9zhAVI7m1rUXEqIqGeVccCkfpyYfvUDa" />
-                              <Label text="Access Token:" />
-                              <PasswordField fx:id="accessToken" text="283326527-lz6XjlLegB64rkTTpa3toRw3B2ni9C2SxhewjJLn" />
-                              <Label text="Access Token Secret:" />
-                              <PasswordField fx:id="accessTokenSecret" text="J99BGabpitRrPooseVpmaX7FDZkYaU5V262kc6kYWjB3X" />
+                              <VBox>
+                                 <children>
+                                    <Label text="Consumer Key:" />
+                                    <PasswordField fx:id="consumerKey" text="700ERkmDBiiBhhyAOQHYd5EmX" />
+                                 </children>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <Label text="Consumer Secret:" />
+                                    <PasswordField fx:id="consumerSecret" text="xmRQg4LO1jfAmfRUNJ9zhAVI7m1rUXEqIqGeVccCkfpyYfvUDa" />
+                                 </children>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <Label text="Access Token:" />
+                                    <PasswordField fx:id="accessToken" text="283326527-lz6XjlLegB64rkTTpa3toRw3B2ni9C2SxhewjJLn" />
+                                 </children>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <Label text="Access Token Secret:" />
+                                    <PasswordField fx:id="accessTokenSecret" text="J99BGabpitRrPooseVpmaX7FDZkYaU5V262kc6kYWjB3X" />
+                                 </children>
+                              </VBox>
                               <VBox>
                                  <children>
                                     <Label text="Filter:" />
-                                    <TextField fx:id="filterTextField" promptText="league of legends, hearthstone, killing...." />
+                                    <TextField fx:id="filterTextField" maxWidth="225.0" promptText="league of legends, hearthstone, killing...." />
                                  </children>
                                  <VBox.margin>
-                                    <Insets top="50.0" />
+                                    <Insets top="25.0" />
+                                 </VBox.margin>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <Label text="Total tweets:" />
+                                    <TextField fx:id="counterTextField" editable="false" promptText="0" />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets top="25.0" />
                                  </VBox.margin>
                               </VBox>
                            </children>
@@ -55,58 +84,76 @@
                         <HBox alignment="TOP_CENTER">
                            <children>
                               <Label text="Status: " />
-                              <Label fx:id="status" text="Idle">
+                              <Label fx:id="status">
                                  <font>
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Label>
                            </children>
                         </HBox>
-                        <ImageView fx:id="animation" fitHeight="111.0" fitWidth="129.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../res/logo.png" />
-                           </image></ImageView>
+                        <ImageView fx:id="statusImage" fitHeight="111.0" fitWidth="129.0" onMouseClicked="#openImageURL" pickOnBounds="true" preserveRatio="true" />
                      </children>
                   </VBox>
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <HBox spacing="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <AnchorPane prefWidth="250.0">
-                           <children>
-                              <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                 <children>
-                                    <Label text="User:" />
-                                    <TextField fx:id="userTextField" editable="false" promptText="Screen name" />
-                                 </children>
-                              </VBox>
-                              <VBox layoutY="42.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                                 <children>
-                                    <Label text="Date:" />
-                                    <TextField fx:id="dateTextField" editable="false" promptText="YYYY-MM-DDThh:mm:ssZ" />
-                                 </children>
-                              </VBox>
-                              <VBox layoutY="84.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                                 <children>
-                                    <Label text="Counter:" />
-                                    <TextField fx:id="counterTextField" editable="false" promptText="0" />
-                                 </children>
-                              </VBox>
-                           </children>
-                        </AnchorPane>
                         <VBox prefHeight="100.0">
                            <children>
                               <Label text="Tweet:" />
                               <TextArea fx:id="tweetTextField" editable="false" promptText="Tweets will appear here!" wrapText="true" />
                            </children>
                         </VBox>
+                        <HBox spacing="5.0">
+                           <children>
+                              <VBox prefWidth="175.0">
+                                 <children>
+                                    <VBox>
+                                       <children>
+                                          <Label text="User:" />
+                                          <TextField fx:id="userTextField" editable="false" promptText="Screen name" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Date:" />
+                                          <TextField fx:id="dateTextField" editable="false" promptText="YYYY-MM-DDThh:mm:ssZ" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Language:" />
+                                          <TextField fx:id="languageTextField" editable="false" promptText="EN-US" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </VBox>
+                              <AnchorPane>
+                                 <children>
+                                    <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <children>
+                                          <Label text="Image" />
+                                          <Pane style="-fx-background-color: white;">
+                                             <children>
+                                                <ImageView fx:id="tweetImage" fitHeight="365.0" fitWidth="365.0" pickOnBounds="true" preserveRatio="true" />
+                                             </children>
+                                          </Pane>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </HBox>
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
-                  </HBox>
+                  </VBox>
                </children>
             </AnchorPane>
         </items>

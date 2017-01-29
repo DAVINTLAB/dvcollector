@@ -11,9 +11,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Paint;
+import misc.IsoDateFormatter;
 import twitter4j.MediaEntity;
 import twitter4j.Status;
-import util.IsoDateFormatter;
 
 import java.awt.Desktop;
 import java.io.IOException;
@@ -100,14 +100,10 @@ public class StreamController {
     	setStatus(Collector.State.UNREADY); // Necessary, since we don't actually see the collector state change to UNREADY during it's construction
     	
     	state.bind(collector.stateProperty());    	
-    	state.addListener((observable, oldValue, newValue) -> {
-    	    setStatus(newValue);
-    	});
+    	state.addListener((observable, oldValue, newValue) -> { setStatus(newValue); });
     	
     	currentTweet.bind(collector.currentTweetProperty());
-    	currentTweet.addListener((observable, oldValue, newValue) -> {
-    		updateStatus(newValue);
-    	});	
+    	currentTweet.addListener((observable, oldValue, newValue) -> { updateStatus(newValue); });	
     }
 
     /**
@@ -132,7 +128,7 @@ public class StreamController {
 				
 				MediaEntity[] mediaEntities = status.getMediaEntities();
 				if(mediaEntities != null && mediaEntities.length != 0){
-					tweetImage.setImage(new Image(mediaEntities[0].getMediaURL()));
+					new Thread(() -> { tweetImage.setImage(new Image(mediaEntities[0].getMediaURL())); }).start(); //TODO Figure out what to do with the rest of media entities			
 				} else tweetImage.setImage(null);
 			}    		    
     	});
