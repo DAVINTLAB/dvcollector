@@ -1,7 +1,5 @@
 package controller;
 
-import java.util.Date;
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -13,6 +11,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
+import model.StatusDAO;
 import twitter4j.ConnectionLifeCycleListener;
 import twitter4j.StallWarning;
 import twitter4j.Status;
@@ -21,7 +20,6 @@ import twitter4j.StatusListener;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
-import util.IsoDateFormatter;
 
 public class Collector{
 
@@ -32,6 +30,8 @@ public class Collector{
 	private ObjectProperty<Status> currentTweet;
 	private boolean isCancelled;
 
+	private StatusDAO statusDAO;
+	
 	public enum State{ UNREADY, READY, CONNECTING, STREAMING, STOPPING, ERROR };
 	
 	public Collector() {
@@ -50,6 +50,8 @@ public class Collector{
 		this.tweetCount.set(0);
 		
 		this.twitterStream = null;
+		
+		this.statusDAO = new StatusDAO();
 	}
 	
 	public boolean setOAuth(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret){
@@ -81,8 +83,6 @@ public class Collector{
 		
 		state.set(State.CONNECTING);
 		
-		DatabaseManager.connectToDatabase();
-		
 	    this.twitterStream.addListener(new StatusListener() {
 			public void onException(Exception arg0) { System.out.println("@@@@@@@@@@EXCEPTION@@@@@@@@@@");}
 			public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
@@ -90,13 +90,8 @@ public class Collector{
 			public void onStallWarning(StallWarning warning) { System.out.println("@@@@@@@@@@STALL WARNING@@@@@@@@@@");}
 			public void onStatus(Status status) {
 				currentTweet.set(status);
-				tweetCount.add(1);
-				Date created_at = status.getCreatedAt();
-		    	String user_screenname = status.getUser().getScreenName();
-		    	String text = status.getText();		    	
-		    	DatabaseManager.insertStatus(status);
-		    	String tweet = String.format("%s | %s | %s\n\n", IsoDateFormatter.format(created_at), user_screenname, text);
-		    	System.out.print(tweet);
+				tweetCount.add(1);    	
+		    	statusDAO.insertStatus(status);
 			}
 			public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
 	    });
