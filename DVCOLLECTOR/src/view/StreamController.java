@@ -103,6 +103,8 @@ public class StreamController {
     private void initialize() {    	
     	setStatus(Collector.State.UNREADY); // Necessary, since we don't actually see the collector state change to UNREADY during it's construction
     	
+    	filterTextField.setPromptText(collector.getFilter());
+    	
     	state.bind(collector.stateProperty());    	
     	state.addListener((observable, oldValue, newValue) -> { setStatus(newValue); });
     	
