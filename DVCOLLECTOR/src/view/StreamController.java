@@ -1,7 +1,9 @@
 package view;
 
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -60,30 +62,33 @@ public class StreamController {
     // Reference to the main application.
     @SuppressWarnings("unused")
 	private MainApp mainApp;
-    private Image logo;
-    private Image loadAnimation;
-    private Image streamAnimation;
-    private Image stopAnimation;
-    private Image error;
-    private Collector collector;
-    private volatile int tweetCounter;
+    private Image idleImage;
+    private Image connectingImage;
+    private Image streamingImage;
+    private Image stoppingImage;
+    private Image errorImage;
     private String imageURL;
-    private ObjectProperty<Collector.State> state;
-    private String defaultFilter = "league of legends, hearthstone, killing floor 2";
-    private ObjectProperty<Status> currentTweet;
 
+    private Collector collector;
+    private ObjectProperty<Status> currentTweet;
+    private String defaultFilter = "league of legends, hearthstone, killing floor 2";
+    private ObjectProperty<Collector.State> state;
+    private volatile int tweetCounter;
+    private IntegerProperty tweetCount;
+    
     /**
      * The constructor.
      * The constructor is called before the initialize() method.
      */
     public StreamController() {
-    	this.logo = new Image("logo.png");
-    	this.loadAnimation = new Image("loading.gif");
-    	this.streamAnimation = new Image("streaming.gif");
-    	this.stopAnimation = new Image("stopping.gif");
-    	this.error = new Image("error.png");
+    	this.idleImage = new Image("logo.png");
+    	this.connectingImage = new Image("loading.gif");
+    	this.streamingImage = new Image("streaming.gif");
+    	this.stoppingImage = new Image("stopping.gif");
+    	this.errorImage = new Image("error.png");
     	
     	//this.imageURL = "http://www.google.com";
+    	this.tweetCount = new SimpleIntegerProperty();
     	this.currentTweet = new SimpleObjectProperty<Status>();
     	this.state = new SimpleObjectProperty<Collector.State>();
     	this.collector = new Collector();
@@ -95,8 +100,7 @@ public class StreamController {
      * after the fxml file has been loaded.
      */
     @FXML
-    private void initialize() {
-    	
+    private void initialize() {    	
     	setStatus(Collector.State.UNREADY); // Necessary, since we don't actually see the collector state change to UNREADY during it's construction
     	
     	state.bind(collector.stateProperty());    	
@@ -104,6 +108,9 @@ public class StreamController {
     	
     	currentTweet.bind(collector.currentTweetProperty());
     	currentTweet.addListener((observable, oldValue, newValue) -> { updateStatus(newValue); });	
+    	
+    	tweetCount.bind(collector.tweetCounterProperty());
+    	tweetCount.addListener((observable, oldValue, newValue) -> { counterTextField.setText(String.format("%d", tweetCount.get())); });
     }
 
     /**
@@ -123,7 +130,6 @@ public class StreamController {
 				userTextField.setText(status.getUser().getScreenName());
 				dateTextField.setText(IsoDateFormatter.format(status.getCreatedAt()));
 				tweetTextField.setText(status.getText());
-				counterTextField.setText(String.format("%d", ++tweetCounter));
 				languageTextField.setText(status.getLang());
 				
 				MediaEntity[] mediaEntities = status.getMediaEntities();
@@ -161,30 +167,30 @@ public class StreamController {
     	case READY:
     		statusText = "Idle";
     		statusTextColor = Paint.valueOf("#333333"); // TODO Get the exact default color (this one is pretty close)
-    		image = this.logo;
+    		image = this.idleImage;
     		toggleStreamButtons(true);
     		break;
     	case CONNECTING:
     		statusText = "Connecting...";
     		statusTextColor = Paint.valueOf("#b3b300"); // Yellow - has to be a little dark or it gets pretty hard to read
-    		image = this.loadAnimation;
+    		image = this.connectingImage;
     		toggleStreamButtons(false);
     		break;
     	case STREAMING:
     		statusText = "Receiving stream...";
     		statusTextColor = Paint.valueOf("#006600"); // Green
-    		image = this.streamAnimation;
+    		image = this.streamingImage;
     		break;
     	case STOPPING:
     		statusText = "Stopping stream...";
     		statusTextColor = Paint.valueOf("#990000"); // Red
-    		image = this.stopAnimation;
+    		image = this.stoppingImage;
     		break;  
     	default:
     	case ERROR:
     		statusText = "Error";
     		statusTextColor = Paint.valueOf("#990000"); // Red
-    		image = this.error;
+    		image = this.errorImage;
     	}
     	
     	Platform.runLater(new Runnable(){

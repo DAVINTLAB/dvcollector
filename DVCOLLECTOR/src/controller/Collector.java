@@ -4,6 +4,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -26,7 +27,7 @@ public class Collector{
 	private ObjectProperty<State> state;
 	private StringProperty filter;
 	private TwitterStream twitterStream;
-	private volatile IntegerProperty tweetCount;
+	private volatile IntegerProperty tweetCounter;
 	private ObjectProperty<Status> currentTweet;
 	private boolean isCancelled;
 
@@ -46,8 +47,8 @@ public class Collector{
 		this.currentTweet = new SimpleObjectProperty<Status>();
 		this.currentTweet.set(null);
 		
-		this.tweetCount = new SimpleIntegerProperty();
-		this.tweetCount.set(0);
+		this.tweetCounter = new SimpleIntegerProperty();
+		this.tweetCounter.set(0);
 		
 		this.twitterStream = null;
 		
@@ -90,7 +91,7 @@ public class Collector{
 			public void onStallWarning(StallWarning warning) { System.out.println("@@@@@@@@@@STALL WARNING@@@@@@@@@@");}
 			public void onStatus(Status status) {
 				currentTweet.set(status);
-				tweetCount.add(1);    	
+				tweetCounter.set(tweetCounter.get() + 1);    	
 		    	statusDAO.insertStatus(status);
 			}
 			public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
@@ -221,7 +222,7 @@ public class Collector{
 	}
 	
 	public double getWorkDone() {
-		return tweetCount.doubleValue();
+		return tweetCounter.doubleValue();
 	}
 
 	public boolean isRunning() {
@@ -264,9 +265,8 @@ public class Collector{
 		return null;
 	}
 
-	public ReadOnlyDoubleProperty workDoneProperty() {
-		// TODO Auto-generated method stub
-		return null;
+	public IntegerProperty tweetCounterProperty() {
+		return tweetCounter;
 	}
 
 }
