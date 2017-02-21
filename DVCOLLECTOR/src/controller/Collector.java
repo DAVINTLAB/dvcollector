@@ -91,7 +91,7 @@ public class Collector{
 			public void onStallWarning(StallWarning warning) { System.out.println("@@@@@@@@@@STALL WARNING@@@@@@@@@@");}
 			public void onStatus(Status status) {
 				currentTweet.set(status);
-				tweetCounter.set(tweetCounter.get() + 1);    	
+				tweetCounter.set(tweetCounter.get() + 1);
 		    	statusDAO.insertStatus(status);
 			}
 			public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}

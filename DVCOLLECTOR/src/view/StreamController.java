@@ -43,6 +43,8 @@ public class StreamController {
     private TextField filterTextField;   
     @FXML
     private TextField counterTextField;
+	@FXML
+	private Button exportAsCSVButton;
     @FXML
     private Label status;
     @FXML
@@ -70,10 +72,10 @@ public class StreamController {
     private String imageURL;
 
     private Collector collector;
-    private ObjectProperty<Status> currentTweet;
+    //private ObjectProperty<Status> currentTweet;
     private String defaultFilter = "league of legends, hearthstone, killing floor 2";
     private ObjectProperty<Collector.State> state;
-    private volatile int tweetCounter;
+    //private volatile int tweetCounter;
     private IntegerProperty tweetCount;
     
     /**
@@ -89,7 +91,7 @@ public class StreamController {
     	
     	//this.imageURL = "http://www.google.com";
     	this.tweetCount = new SimpleIntegerProperty();
-    	this.currentTweet = new SimpleObjectProperty<Status>();
+    	//this.currentTweet = new SimpleObjectProperty<Status>();
     	this.state = new SimpleObjectProperty<Collector.State>();
     	this.collector = new Collector();
     	this.collector.setFilter(defaultFilter);
@@ -101,18 +103,16 @@ public class StreamController {
      */
     @FXML
     private void initialize() {    	
-    	setStatus(Collector.State.UNREADY); // Necessary, since we don't actually see the collector state change to UNREADY during it's construction
+    	setState(collector.getState()); // Necessary, since we don't actually see the collector state change to UNREADY during it's construction
+    	counterTextField.setText(String.valueOf(collector.getWorkDone())); // Same as above
     	
     	filterTextField.setPromptText(collector.getFilter());
+
+    	collector.setStateChangeListener((observable, oldValue, newValue) -> { setState(newValue); });
     	
-    	state.bind(collector.stateProperty());    	
-    	state.addListener((observable, oldValue, newValue) -> { setStatus(newValue); });
+    	collector.setTweetChangeListener((observable, oldValue, newValue) -> { updateStatus(newValue); });
     	
-    	currentTweet.bind(collector.currentTweetProperty());
-    	currentTweet.addListener((observable, oldValue, newValue) -> { updateStatus(newValue); });	
-    	
-    	tweetCount.bind(collector.tweetCounterProperty());
-    	tweetCount.addListener((observable, oldValue, newValue) -> { counterTextField.setText(String.format("%d", tweetCount.get())); });
+    	collector.setTweetCounterChangeListener((observable, oldValue, newValue) -> { Platform.runLater(() -> counterTextField.setText(String.format("%d", newValue))); });
     }
 
     /**
@@ -154,12 +154,16 @@ public class StreamController {
 		collector.cancel();
 	}
 	
+	public void exportCSV(){
+		collector.exportStatus();
+	}
+	
 	public void openImageURL() throws IOException, URISyntaxException{
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
 		desktop.browse(new URI(imageURL));
 	}
     
-    public void setStatus(Collector.State newStatus){
+    public void setState(Collector.State newStatus){
     	String statusText;
     	Paint statusTextColor;
     	Image image;
