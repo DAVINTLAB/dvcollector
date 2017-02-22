@@ -36,7 +36,7 @@
                               </AnchorPane>
                            </children>
                         </VBox>
-                        <VBox spacing="5.0">
+                        <VBox>
                            <children>
                               <VBox>
                                  <children>
@@ -62,25 +62,30 @@
                                     <PasswordField fx:id="accessTokenSecret" text="J99BGabpitRrPooseVpmaX7FDZkYaU5V262kc6kYWjB3X" />
                                  </children>
                               </VBox>
-                              <VBox>
-                                 <children>
-                                    <Label text="Filter:" />
-                                    <TextField fx:id="filterTextField" />
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets top="25.0" />
-                                 </VBox.margin>
-                              </VBox>
-                              <VBox>
-                                 <children>
-                                    <Label text="Total tweets:" />
-                                    <TextField fx:id="counterTextField" editable="false" promptText="0" />
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets top="25.0" />
-                                 </VBox.margin>
-                              </VBox>
                            </children>
+                        </VBox>
+                        <VBox spacing="5.0">
+                           <children>
+                              <Label text="Filter:" />
+                              <TextField fx:id="filterTextField" />
+                           </children>
+                           <VBox.margin>
+                              <Insets top="25.0" />
+                           </VBox.margin>
+                        </VBox>
+                        <VBox spacing="5.0">
+                           <children>
+                              <Label text="Total tweets:" />
+                              <TextField fx:id="counterTextField" editable="false" promptText="0" />
+                              <AnchorPane>
+                                 <children>
+                                    <Button fx:id="exportAsCSVButton" mnemonicParsing="false" onAction="#exportCSV" text="Export as CSV" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                           <VBox.margin>
+                              <Insets top="25.0" />
+                           </VBox.margin>
                         </VBox>
                      </children>
                      <padding>
