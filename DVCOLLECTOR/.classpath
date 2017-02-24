@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="twitter4j-core-4.0.4.jar"/>
 	<classpathentry kind="lib" path="twitter4j-media-support-4.0.4.jar"/>
 	<classpathentry kind="lib" path="twitter4j-stream-4.0.4.jar"/>
+	<classpathentry kind="lib" path="commons-csv-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
