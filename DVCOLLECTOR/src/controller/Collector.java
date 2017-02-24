@@ -1,5 +1,8 @@
 package controller;
 
+import java.io.File;
+import java.util.Date;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -33,26 +36,28 @@ public class Collector{
 
 	private StatusDAO statusDAO;
 	
+	private final String DEFAULT_FILTER = "league of legends, hearthstone, killing floor 2";
+	
 	public enum State{ UNREADY, READY, CONNECTING, STREAMING, STOPPING, ERROR };
 	
 	public Collector() {
 		this.isCancelled = false;
 		
 		this.filter = new SimpleStringProperty();
-		this.filter.set(null);
+		this.filter.set(DEFAULT_FILTER);
 		
 		this.state = new SimpleObjectProperty<State>();
 		this.state.set(State.UNREADY);
-				
+		
 		this.currentTweet = new SimpleObjectProperty<Status>();
 		this.currentTweet.set(null);
 		
-		this.tweetCounter = new SimpleIntegerProperty();
-		this.tweetCounter.set(0);
 		
 		this.twitterStream = null;
 		
 		this.statusDAO = new StatusDAO();
+		this.tweetCounter = new SimpleIntegerProperty();
+		this.tweetCounter.set(statusDAO.getTotalStatus());
 	}
 	
 	public boolean setOAuth(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret){
@@ -66,23 +71,23 @@ public class Collector{
 		cb.setOAuthAccessTokenSecret(accessTokenSecret);
 		this.twitterStream = new TwitterStreamFactory(cb.build()).getInstance();
 		
-		if(filter.get() != null) state.set(State.READY);
+		if(filter.get() != null) changeState(State.READY);
 		return true;
 	}
-	
-	public void changeState(State newState){ // Useless for now, might be useful this later.
-		state.set(newState); 
+
+	private void changeState(State newState){ // Useless for now, might be useful this later.
+		state.set(newState);
 		/*Platform.runLater(new Runnable() {
 			    @Override public void run() {
 			    	state.set(newState);
 			    }
 		 });*/
 	}
-	
+
 	public boolean start(){
 		if(!state.get().equals(State.READY)) return false;
 		
-		state.set(State.CONNECTING);
+		changeState(State.CONNECTING);
 		
 	    this.twitterStream.addListener(new StatusListener() {
 			public void onException(Exception arg0) { System.out.println("@@@@@@@@@@EXCEPTION@@@@@@@@@@");}
@@ -97,38 +102,37 @@ public class Collector{
 			public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
 	    });
 	    this.twitterStream.addConnectionLifeCycleListener(new ConnectionLifeCycleListener() {			
-	    	public void onConnect() { state.set(State.STREAMING); }
-	    	public void onDisconnect() { System.out.println("Disconnected!"); } //TODO switch code with line below
-			public void onCleanUp() { state.set(State.READY); System.out.println("Stream shut down."); }
+	    	public void onConnect() { changeState(State.STREAMING); }
+	    	public void onDisconnect() { System.out.println("Disconnected!"); }
+			public void onCleanUp() { changeState(State.READY); System.out.println("Stream shut down."); }
 		});
 	    
     	System.out.println("Beginning stream...");
 	    
-	    twitterStream.filter(filter.get());	    
+	    twitterStream.filter(filter.get());
 	    
-	    Thread thread = new Thread(new Runnable(){
-			public void run() {				
+	    new Thread(new Runnable(){
+			public void run() {
 				while(!isCancelled){
-					System.out.println(".");
-					try { Thread.sleep(3000); /*System.out.println(getState());*/ } 
+					System.out.println(getMessage());
+					try { Thread.sleep(2000); /*System.out.println(getState());*/ }
 					catch (InterruptedException e) {
-						state.set(State.ERROR);
+						changeState(State.ERROR);
 						e.printStackTrace();
 					}
-				}				
+				}
 				twitterStream.cleanUp();
-				
-			}	    	
-	    });
-	    thread.start();
+			}
+	    }).start();
 	    
 	    return true;
 	}
 	
 	public boolean cancel() {
-		state.set(State.STOPPING);
+		if(!(state.get().equals(State.CONNECTING) || state.get().equals(State.STREAMING))) return false;		
+		changeState(State.STOPPING);
 		this.isCancelled = true;
-		return false;
+		return true;
 	}
 	
 	public String getFilter(){
@@ -141,8 +145,15 @@ public class Collector{
 		this.filter.set(filter);
 		System.out.println("Filter set to:\n" + this.filter.get());
 		
-		if(twitterStream != null) state.set(State.READY);		
+		if(twitterStream != null) changeState(State.READY);
 		return true;
+	}
+	
+	public void exportStatus(File file){
+		statusDAO.exportAllStatus(file);
+	}
+	public void exportStatus(){
+		statusDAO.exportAllStatus();
 	}
 	
 	public void setStateChangeListener(ChangeListener<State> changeListener){
@@ -171,24 +182,24 @@ public class Collector{
 		String message;
 		switch(state.get()){
 		case CONNECTING:
-			message = "Connecting to Twitter's filter streaming API.";
+			message = "Connecting to Twitter's filter streaming API...";
 			break;
 		case READY:
 			message = "Ready to begin streaming.";
 			break;
 		case STOPPING:
-			message = "Shutting down the stream.";
+			message = "Shutting down the stream...";
 			break;
 		case STREAMING:
-			message = "Receiving tweets.";
+			message = "Receiving tweets...";
 			break;
 		case UNREADY:
-			message = "Waiting for a keyword filter or OAuth information.";
+			message = "Waiting for a keyword filter or OAuth information...";
 			break;
 		default:
 		case ERROR:
 			message = "An error has occurred.";
-			break;		
+			break;
 		}
 		return message;
 	}
@@ -206,6 +217,14 @@ public class Collector{
 		return currentTweet;
 	}
 	
+	public void setTweetChangeListener(ChangeListener<Status> changeListener){
+		currentTweet.addListener(changeListener);
+	}
+	
+	public void removeTweetChangeListener(ChangeListener<Status> changeListener){
+		currentTweet.removeListener(changeListener);
+	}
+	
 	public String getTitle() {
 		// TODO Auto-generated method stub
 		return null;
@@ -221,8 +240,8 @@ public class Collector{
 		return null;
 	}
 	
-	public double getWorkDone() {
-		return tweetCounter.doubleValue();
+	public int getWorkDone() {
+		return tweetCounter.intValue();
 	}
 
 	public boolean isRunning() {
@@ -267,6 +286,14 @@ public class Collector{
 
 	public IntegerProperty tweetCounterProperty() {
 		return tweetCounter;
+	}
+	
+	public void setTweetCounterChangeListener(ChangeListener<Number> changeListener){
+		tweetCounter.addListener(changeListener);
+	}
+	
+	public void removeTweetCounterChangeListener(ChangeListener<Number> changeListener){
+		tweetCounter.removeListener(changeListener);
 	}
 
 }

@@ -73,7 +73,6 @@ public class StreamController {
 
     private Collector collector;
     //private ObjectProperty<Status> currentTweet;
-    private String defaultFilter = "league of legends, hearthstone, killing floor 2";
     private ObjectProperty<Collector.State> state;
     //private volatile int tweetCounter;
     private IntegerProperty tweetCount;
@@ -82,7 +81,7 @@ public class StreamController {
      * The constructor.
      * The constructor is called before the initialize() method.
      */
-    public StreamController() {
+    public StreamController(Collector collector) {
     	this.idleImage = new Image("logo.png");
     	this.connectingImage = new Image("loading.gif");
     	this.streamingImage = new Image("streaming.gif");
@@ -93,8 +92,7 @@ public class StreamController {
     	this.tweetCount = new SimpleIntegerProperty();
     	//this.currentTweet = new SimpleObjectProperty<Status>();
     	this.state = new SimpleObjectProperty<Collector.State>();
-    	this.collector = new Collector();
-    	this.collector.setFilter(defaultFilter);
+    	this.collector = collector;//mainApp.getCollector();
     }
 
     /**
@@ -103,6 +101,9 @@ public class StreamController {
      */
     @FXML
     private void initialize() {    	
+    	//System.out.println("AAAAAAAA");
+    	//System.out.println(mainApp);
+    	
     	setState(collector.getState()); // Necessary, since we don't actually see the collector state change to UNREADY during it's construction
     	counterTextField.setText(String.valueOf(collector.getWorkDone())); // Same as above
     	
@@ -122,6 +123,7 @@ public class StreamController {
      */
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
+        this.collector = mainApp.getCollector();
     }
     
     public void updateStatus(Status status) {
@@ -143,6 +145,7 @@ public class StreamController {
     }
     
     public void startStream() {
+    	System.out.println(mainApp);
     	this.collector.setOAuth(consumerKey.getText(), consumerSecret.getText(), accessToken.getText(), accessTokenSecret.getText());
     	if(!(filterTextField.getText() == null || filterTextField.getText().trim().isEmpty())){
     		this.collector.setFilter(filterTextField.getText());

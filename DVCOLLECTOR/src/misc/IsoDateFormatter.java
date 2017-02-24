@@ -1,5 +1,6 @@
 package misc;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,5 +13,16 @@ public class IsoDateFormatter {
 	
 	public static String format(Date date){
 		return isoFormat.format(date);
+	}
+	
+	public static Date format(String dateString){
+		Date date = null;
+		try {
+			date = isoFormat.parse(dateString);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		return date;	
 	}
 }

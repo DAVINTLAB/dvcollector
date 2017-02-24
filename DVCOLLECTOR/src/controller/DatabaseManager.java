@@ -1,9 +1,11 @@
 package controller;
 
+import java.io.File;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import model.StatusDAO;
 import twitter4j.Status;
 
 public class DatabaseManager {
@@ -15,7 +17,7 @@ public class DatabaseManager {
 	public static Connection con;
 	
 	public static void main( String args[] ) throws SQLException {
-		createDatabase();	
+		/*createDatabase();	
 		connectToDatabase();
 		Statement s = con.createStatement();
 		s.execute("SELECT * FROM TWEETS");
@@ -27,7 +29,10 @@ public class DatabaseManager {
 		    System.out.println(resultSet.getString(3));
 		    System.out.println("");
 		}
-		s.close();
+		s.close();*/
+		StatusDAO test = new StatusDAO();
+		test.getAllStatus();
+		//CSVWriter.writeTweetsCSV(test.getAllStatusResultSet(), new File("TESTE.csv"));
 	}
 	
 	public static boolean insertStatus(Status status) {

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="d3.layout.cloud.js"></script>
+	<script src="seedrandom.js"></script>
+    <head>
+        <title>Word Cloud Test</title>
+    </head>
+    <body>
+        <form>
+            <input type="button" value="Refresh cloud" onclick="doIt()">
+        </form>
+    </body>
+    <script>	
+		Math.seedrandom("DaVInt");
+		
+		var myHeight = 250,
+			myWidth = 800 - 50,
+			tweets = [],
+			axis;
+			
+		var frequency_list = [
+			{text: "Rick", size: 50},
+			{text: "Morty", size: 40},
+			{text: "Summer", size: 30},
+			{text: "Beth", size: 20},
+			{text: "Jerry", size: 10}
+		];
+
+        var varScale = d3.scale.linear()
+            .domain([1, 300])
+            .range([15, 80]);
+		
+		var cutScale = d3.scale.linear()
+			.domain([10, 100])
+			.range([25, 100]);
+
+        var layout = d3.layout.cloud()
+            .size([myWidth, myHeight])
+            .padding(0)
+            .rotate(0)
+			.spiral('rectangular')
+			.text(function(d) { return d.text; })
+			//.fontStyle( "Impact" )
+            .fontSize( function(d){ return varScale(d.size); } )
+            .on("end", draw);
+
+        var fill = d3.scale.category10();
+		
+		function draw(words) {
+			d3.selectAll("svg").remove();
+            d3.select("body").append("svg")
+                .attr("width", layout.size()[0])
+                .attr("height", layout.size()[1])
+			.append("g")
+                .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+            .selectAll("text")
+                .data(words)
+            .enter().append("text")
+                .style("font-size", function(d) { return d.size + "px"; })
+                //.style("font-family", "Impact")
+                .style("fill", function(d, i) { return fill(i); })
+                .attr("text-anchor", "middle")
+                .attr("transform", function(d) {
+                    return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                })
+                .text(function(d) { return d.text; });
+        }
+
+        function doIt(){		
+            console.log("Gerando tag cloud...");
+			layout.words(JSON.parse(JSON.stringify(frequency_list)));
+            layout.start();
+            console.log("Feito!");
+        }
+    </script>
+
+</html>
