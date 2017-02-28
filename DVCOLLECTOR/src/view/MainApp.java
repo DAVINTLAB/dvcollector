@@ -10,7 +10,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import view.StreamController;
 import controller.Collector;
 
@@ -22,8 +21,7 @@ public class MainApp extends Application {
     private Collector collector;
 
     @Override
-    public void start(Stage primaryStage) {
-    	
+    public void start(Stage primaryStage) {    	
     	this.collector = new Collector();
     	
         this.primaryStage = primaryStage;

@@ -107,7 +107,7 @@ public class Collector{
 			public void onCleanUp() { changeState(State.READY); System.out.println("Stream shut down."); }
 		});
 	    
-    	System.out.println("Beginning stream...");
+    	System.out.println("Commencing stream...");
 	    
 	    twitterStream.filter(filter.get());
 	    

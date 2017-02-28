@@ -101,18 +101,13 @@ public class StreamController {
      */
     @FXML
     private void initialize() {    	
-    	//System.out.println("AAAAAAAA");
-    	//System.out.println(mainApp);
-    	
     	setState(collector.getState()); // Necessary, since we don't actually see the collector state change to UNREADY during it's construction
     	counterTextField.setText(String.valueOf(collector.getWorkDone())); // Same as above
     	
     	filterTextField.setPromptText(collector.getFilter());
 
-    	collector.setStateChangeListener((observable, oldValue, newValue) -> { setState(newValue); });
-    	
-    	collector.setTweetChangeListener((observable, oldValue, newValue) -> { updateStatus(newValue); });
-    	
+    	collector.setStateChangeListener((observable, oldValue, newValue) -> { setState(newValue); });    	
+    	collector.setTweetChangeListener((observable, oldValue, newValue) -> { updateStatus(newValue); });    	
     	collector.setTweetCounterChangeListener((observable, oldValue, newValue) -> { Platform.runLater(() -> counterTextField.setText(String.format("%d", newValue))); });
     }
 
@@ -129,23 +124,20 @@ public class StreamController {
     public void updateStatus(Status status) {
     	// Necessary to update the UI without crashing
     	// TODO Look into this
-    	Platform.runLater(new Runnable(){
-			public void run() { 
-				userTextField.setText(status.getUser().getScreenName());
-				dateTextField.setText(IsoDateFormatter.format(status.getCreatedAt()));
-				tweetTextField.setText(status.getText());
-				languageTextField.setText(status.getLang());
-				
-				MediaEntity[] mediaEntities = status.getMediaEntities();
-				if(mediaEntities != null && mediaEntities.length != 0){
-					new Thread(() -> { tweetImage.setImage(new Image(mediaEntities[0].getMediaURL())); }).start(); //TODO Figure out what to do with the rest of media entities			
-				} else tweetImage.setImage(null);
-			}    		    
+    	Platform.runLater(() -> { 
+    		userTextField.setText(status.getUser().getScreenName());
+    		dateTextField.setText(IsoDateFormatter.format(status.getCreatedAt()));
+    		tweetTextField.setText(status.getText());
+    		languageTextField.setText(status.getLang());
+
+    		MediaEntity[] mediaEntities = status.getMediaEntities();
+    		if(mediaEntities != null && mediaEntities.length != 0){
+    			new Thread(() -> { tweetImage.setImage(new Image(mediaEntities[0].getMediaURL())); }).start(); //TODO Figure out what to do with the rest of media entities			
+    		} else tweetImage.setImage(null);
     	});
     }
     
     public void startStream() {
-    	System.out.println(mainApp);
     	this.collector.setOAuth(consumerKey.getText(), consumerSecret.getText(), accessToken.getText(), accessTokenSecret.getText());
     	if(!(filterTextField.getText() == null || filterTextField.getText().trim().isEmpty())){
     		this.collector.setFilter(filterTextField.getText());
@@ -202,12 +194,10 @@ public class StreamController {
     		image = this.errorImage;
     	}
     	
-    	Platform.runLater(new Runnable(){
-    		public void run() { 
-    			status.setText(statusText);
-    			status.setTextFill(statusTextColor);
-    			statusImage.setImage(image);
-    		}    		   
+    	Platform.runLater(() -> { 
+    		status.setText(statusText);
+    		status.setTextFill(statusTextColor);
+    		statusImage.setImage(image);
     	});
     }
         
