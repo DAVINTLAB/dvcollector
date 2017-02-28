@@ -8,14 +8,15 @@
     </head>
     <body>
         <form>
-            <input type="button" value="Refresh cloud" onclick="doIt()">
+            <input type="button" value="Refresh cloud" onclick="drawCloud()" style="display: none">
         </form>
+       
     </body>
     <script>	
 		Math.seedrandom("DaVInt");
 		
-		var myHeight = 250,
-			myWidth = 800 - 50,
+		var myHeight = 300 - 20,
+			myWidth = 800 - 20,
 			tweets = [],
 			axis;
 			
@@ -30,10 +31,6 @@
         var varScale = d3.scale.linear()
             .domain([1, 300])
             .range([15, 80]);
-		
-		var cutScale = d3.scale.linear()
-			.domain([10, 100])
-			.range([25, 100]);
 
         var layout = d3.layout.cloud()
             .size([myWidth, myHeight])
@@ -52,6 +49,8 @@
             d3.select("body").append("svg")
                 .attr("width", layout.size()[0])
                 .attr("height", layout.size()[1])
+                .attr("style", "display: block; margin: auto;")
+                .attr("onclick", "drawCloud()")
 			.append("g")
                 .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
             .selectAll("text")
@@ -66,13 +65,27 @@
                 })
                 .text(function(d) { return d.text; });
         }
+        
+        function setWordSizeDomain(domain){
+        	varScale.domain(domain);
+        }
+        
+        function setWordSizeRange(range){
+        	varScale.range(range);
+        }
+        
+        function setCloudSize(size){
+        	layout.size(size);
+        }
 
-        function doIt(){		
+        function drawCloud(){		
             console.log("Gerando tag cloud...");
 			layout.words(JSON.parse(JSON.stringify(frequency_list)));
             layout.start();
             console.log("Feito!");
         }
+        
+        window.onclick = drawCloud;
     </script>
 
 </html>

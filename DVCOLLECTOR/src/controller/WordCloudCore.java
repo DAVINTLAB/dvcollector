@@ -2,41 +2,82 @@ package controller;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 
+import javafx.application.Platform;
+import javafx.scene.web.WebEngine;
+import misc.TextCleaner;
+import netscape.javascript.JSObject;
 import twitter4j.Status;
 
 public class WordCloudCore {
+	
+	private WebEngine webEngine;
+	private JSBridge bridge;
 	
 	private HashMap<String, WordFrequency> frequencyList;
 	private Deque<SimpleStatus> latestStatus;	
 	private Integer maxLatestStatus = 300;
 	private Integer maxWords = 100;
 	
+	private final Integer DRAW_INTERVAL = 15000;
+	
 	private boolean running;
 	
 	private Collector collector;
 	
-	public WordCloudCore(Collector collector) {
+	public WordCloudCore(Collector collector, WebEngine webEngine) {
 		this.frequencyList = new HashMap<String, WordFrequency>();
 		this.latestStatus = new ArrayDeque<SimpleStatus>();
 		this.running = false;
+		this.webEngine = webEngine;
+		this.bridge = new JSBridge(webEngine);
 		this.collector = collector;
-		addListeners();
+		setCollectorListeners();		
 	}
 	
-	private void addListeners() {
+	public void init(){
+		bridge.setFrequencyList("["
+				+ "{text: \"Rick\", size: 100},"
+				+ "{text: \"Morty\", size: 100},"
+				+ "{text: \"Summer\", size: 100},"
+				+ "{text: \"Beth\", size: 100},"
+				+ "{text: \"Jerry\", size: 100}"
+				+ "]");
+		
+		Thread t = new Thread( () -> {
+				while(true){
+					try {
+						Thread.sleep(DRAW_INTERVAL);
+						if(running){
+							bridge.setFrequencyList(getFrequencyListString());
+							bridge.drawCloud();
+						}
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+		});
+		t.setDaemon(true); //Forces the thread to stop after the program has been close. TODO look for a better solution.
+		t.start();
+	}
+	
+	private void setCollectorListeners() {
 		collector.setTweetChangeListener((observable, oldValue, newValue) -> { addStatus(newValue); });	
+		
+		collector.setStateChangeListener((observable, oldValue, newValue) -> { running = newValue.equals(Collector.State.STREAMING); });
 	}
 
 	public void addStatus(Status status){
 		if(latestStatus.size() == maxLatestStatus) removeOldestStatus();
 		
-		SimpleStatus simpleStatus = extractSimpleStatus(status);
+		SimpleStatus simpleStatus = new SimpleStatus(status);
 		
 		for(String word: simpleStatus.words){
 			if(word.equals("")) continue;
@@ -64,12 +105,12 @@ public class WordCloudCore {
 	public String getFrequencyListString(){
 		List<WordFrequency> list = new ArrayList<WordFrequency>(frequencyList.values());
 		Collections.sort(list, (a, b) -> b.size - a.size);
+		bridge.setWordSizeDomain(1, list.get(0).size);
 		
 		int wordLimit = 0;
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		for(WordFrequency word: list){
-			System.out.print(word.size + " ");
 			sb.append(word.toString() + ",");
 			if(++wordLimit >= maxWords) break;
 		}
@@ -78,56 +119,25 @@ public class WordCloudCore {
 		return sb.toString();
 	}
 	
-	private String[] cleanText(String text){
-		text.toLowerCase();
-		text = removeLinks(text);
-		text = removeNewLines(text);
-		text = removeNonAlphabet(text);
-		text = removeWhitespace(text);
-		String[] words = text.split(" ");
-
-		return words;		
-	}
-	
-	private String removeLinks(String text) {
-		text = text.replaceAll("https?:?[\\-a-zA-Z0-9@:%_\\+.~#?&\\/]*", "");
-		text = text.replaceAll("www\\.[\\-a-zA-Z0-9@:%_\\+.~#?&z\\/]*", "");
-		return text;
-	}
-
-	private String removeNewLines(String text) { // And Tabs
-		return text.replaceAll("[\\r\\n\\t]", " ");
-	}
-
-	private String removeWhitespace(String rawText) {
-		rawText.replaceAll("\\s+", " ");
-		return rawText.trim();
-	}
-
-	private String removeNonAlphabet(String text) {
-		return text.replaceAll("[^a-zA-Z0-9#@\\s]", " ");		
-	}
-
-	private SimpleStatus extractSimpleStatus(Status status) {
-		String[] words = cleanText(status.getText());
-		Date date = status.getCreatedAt();		
-		SimpleStatus simpleStatus = new SimpleStatus(words, date);
-		
-		return simpleStatus;
-	}
-	
 	private class SimpleStatus{
-		String[] words;
+		List<String> words;
 		Date date;
-		public SimpleStatus(String[] words, Date date) {
+		
+		public SimpleStatus(List<String> words, Date date) {
 			this.words = words;
 			this.date = date;
 		}
+		
+		public SimpleStatus(Status status){
+			this.words = TextCleaner.cleanText(status.getText());
+			this.date = status.getCreatedAt();
+		}
 	}
-	
+
 	private class WordFrequency {
 		String text;
 		Integer size;
+		
 		public WordFrequency(String text){
 			this.text = text;
 			this.size = 0;
@@ -141,5 +151,44 @@ public class WordCloudCore {
 		public String toString() { 
 			return String.format("{text: \"%s\", size: %d}", text, size);
 		}
+	}
+	
+	private class JSBridge{
+		WebEngine engine;
+		
+		public JSBridge(WebEngine webEngine){
+			this.engine = webEngine;
+		}
+		
+		private void runScript(String script){
+			Platform.runLater(() -> engine.executeScript(script));
+		}
+		
+        public void setWordSizeDomain(int min, int max){
+        	String script = String.format("varScale.domain([%d, %d])", min, max);
+        	runScript(script);        	
+        }
+        
+        public void setWordSizeRange(int min, int max){
+        	String script = String.format("varScale.range([%d, %d])", min, max);
+        	runScript(script);   
+        }
+        
+        public void setCloudSize(int width, int height){
+        	String script = String.format("layout.size([%d, %d])", width, height);
+        	runScript(script);
+        }
+        
+        public void setFrequencyList(String list){
+        	StringBuilder script = new StringBuilder();
+        	script.append("frequency_list = ");
+        	script.append(list);
+        	runScript(script.toString());
+        }
+        
+        public void drawCloud(){
+        	String script = "drawCloud()";
+        	runScript(script);
+        }
 	}
 }
