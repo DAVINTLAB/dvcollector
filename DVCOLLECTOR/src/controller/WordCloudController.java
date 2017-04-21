@@ -1,15 +1,15 @@
-package view;
+package controller;
 
 import org.w3c.dom.Document;
 
-import controller.Collector;
-import controller.WordCloudCore;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import model.Collector;
+import model.WordCloudCore;
 
 public class WordCloudController {
 	

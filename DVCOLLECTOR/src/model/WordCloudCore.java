@@ -1,8 +1,7 @@
-package controller;
+package model;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
@@ -12,7 +11,6 @@ import java.util.List;
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import misc.TextCleaner;
-import netscape.javascript.JSObject;
 import twitter4j.Status;
 
 public class WordCloudCore {

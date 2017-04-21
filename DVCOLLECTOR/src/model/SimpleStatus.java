@@ -16,6 +16,7 @@ import twitter4j.User;
 import twitter4j.UserMentionEntity;
 
 public class SimpleStatus implements Status {
+	private static final long serialVersionUID = -3803993480738268162L;
 	// TODO This whole class.
 	private long id;
 	private Date createdAt;

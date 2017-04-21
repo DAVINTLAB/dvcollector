@@ -1,10 +1,6 @@
-package view;
+package controller;
 
 import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,7 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Paint;
-import misc.IsoDateFormatter;
+import model.Collector;
 import twitter4j.MediaEntity;
 import twitter4j.Status;
 
@@ -21,8 +17,6 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import controller.Collector;
 
 public class StreamController {
 	
@@ -55,8 +49,6 @@ public class StreamController {
     @FXML
     private TextField userTextField;
     @FXML
-    private TextField dateTextField;
-    @FXML
     private TextField languageTextField;
     @FXML
     private ImageView tweetImage;
@@ -73,9 +65,9 @@ public class StreamController {
 
     private Collector collector;
     //private ObjectProperty<Status> currentTweet;
-    private ObjectProperty<Collector.State> state;
+    //private ObjectProperty<Collector.State> state;
     //private volatile int tweetCounter;
-    private IntegerProperty tweetCount;
+    //private IntegerProperty tweetCount;
     
     /**
      * The constructor.
@@ -89,9 +81,9 @@ public class StreamController {
     	this.errorImage = new Image("error.png");
     	
     	//this.imageURL = "http://www.google.com";
-    	this.tweetCount = new SimpleIntegerProperty();
+    	//this.tweetCount = new SimpleIntegerProperty();
     	//this.currentTweet = new SimpleObjectProperty<Status>();
-    	this.state = new SimpleObjectProperty<Collector.State>();
+    	//this.state = new SimpleObjectProperty<Collector.State>();
     	this.collector = collector;//mainApp.getCollector();
     }
 
@@ -126,7 +118,6 @@ public class StreamController {
     	// TODO Look into this
     	Platform.runLater(() -> { 
     		userTextField.setText(status.getUser().getScreenName());
-    		dateTextField.setText(IsoDateFormatter.format(status.getCreatedAt()));
     		tweetTextField.setText(status.getText());
     		languageTextField.setText(status.getLang());
 

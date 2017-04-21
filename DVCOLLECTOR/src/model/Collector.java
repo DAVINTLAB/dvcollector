@@ -1,13 +1,11 @@
-package controller;
+package model;
 
 import java.io.File;
-import java.util.Date;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -15,7 +13,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import model.StatusDAO;
 import twitter4j.ConnectionLifeCycleListener;
 import twitter4j.StallWarning;
 import twitter4j.Status;
@@ -75,7 +72,7 @@ public class Collector{
 		return true;
 	}
 
-	private void changeState(State newState){ // Useless for now, might be useful this later.
+	private void changeState(State newState){ // Useless for now, might be useful later.
 		state.set(newState);
 		/*Platform.runLater(new Runnable() {
 			    @Override public void run() {

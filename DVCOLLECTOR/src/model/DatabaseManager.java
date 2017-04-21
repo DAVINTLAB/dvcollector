@@ -1,11 +1,9 @@
-package controller;
+package model;
 
-import java.io.File;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import model.StatusDAO;
 import twitter4j.Status;
 
 public class DatabaseManager {
